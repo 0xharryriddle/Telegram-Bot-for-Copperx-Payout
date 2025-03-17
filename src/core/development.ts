@@ -1,11 +1,11 @@
 import { Telegraf } from 'telegraf';
 import { Update } from 'telegraf/typings/core/types/typegram';
 import createDebug from 'debug';
-import MyContext from '../configs/session.config';
+import MyContext from '../contexts';
 
 const debug = createDebug('bot:dev');
 
-const development = async (bot: Telegraf<MyContext>) => {
+const development = async (bot: Telegraf<MyContext<Update>>) => {
   const botInfo = (await bot.telegram.getMe()).username;
 
   debug('Bot runs in development mode');

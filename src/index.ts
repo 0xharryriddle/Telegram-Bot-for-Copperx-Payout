@@ -2,15 +2,17 @@ import { Telegraf } from 'telegraf';
 
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { development, production } from './core';
-import botConfig from './configs';
-import MyContext from './configs/session.config';
+import botRoutes from './routes';
+import { Update } from 'telegraf/typings/core/types/typegram';
+import MyContext from './contexts';
+import * as Configs from './configs';
 
-const BOT_TOKEN = process.env.BOT_TOKEN || '';
-const ENVIRONMENT = process.env.NODE_ENV || '';
+const BOT_TOKEN = Configs.ENV.BOT_TOKEN;
+const ENVIRONMENT = Configs.ENV.NODE_ENV;
 
-const bot = new Telegraf<MyContext>(BOT_TOKEN);
+const bot = new Telegraf<MyContext<Update>>(BOT_TOKEN);
 
-botConfig(bot);
+botRoutes(bot);
 
 //prod mode (Vercel)
 export const startVercel = async (req: VercelRequest, res: VercelResponse) => {

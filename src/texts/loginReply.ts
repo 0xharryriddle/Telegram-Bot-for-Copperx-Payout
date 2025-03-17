@@ -1,14 +1,19 @@
 import createDebug from 'debug';
-import MyContext from '../configs/session.config';
+import { Context } from 'telegraf';
+import { Update } from 'telegraf/typings/core/types/typegram';
 
 const debug = createDebug('bot:login_text');
 
-const replyToMessage = (ctx: MyContext, messageId: number, string: string) =>
+const replyToMessage = (
+  ctx: Context<Update>,
+  messageId: number,
+  string: string,
+) =>
   ctx.reply(string, {
     reply_parameters: { message_id: messageId },
   });
 
-const loginReply = () => async (ctx: MyContext) => {
+const loginReply = () => async (ctx: Context<Update>) => {
   debug('Triggered "loginReply" text command');
 
   const messageId = ctx.message?.message_id;

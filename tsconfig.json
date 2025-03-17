@@ -1,8 +1,13 @@
 {
   "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"]
+    },
     "strict": true,
     "target": "esnext",
     "moduleResolution": "node",
+    "esModuleInterop": true,
     "module": "commonjs",
     "skipLibCheck": true,
     "sourceMap": true,
