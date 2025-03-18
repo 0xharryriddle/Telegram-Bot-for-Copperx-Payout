@@ -1,4 +1,4 @@
-import { ApiResponse } from '../utils/apiResponse';
+import { ApiResponse } from '../../src/utils/apiResponse';
 import { Request, Response, NextFunction } from 'express';
 
 export abstract class BaseController {

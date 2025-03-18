@@ -1,16 +1,21 @@
 import * as Configs from '../../src/configs';
-import { UserModel } from '../models/User.model';
+import { UserEmailModel } from '../models/UserEmail.model';
 import axios from 'axios';
 
 export class NotificationService {
-  private pusherKey = 'e089376087cac1a62785';
-  private pusherCluster = 'ap1';
+  private pusherKey = Configs.ENV.PUSHER_KEY;
+  private pusherCluster = Configs.ENV.PUSHER_CLUSTER;
 
-  async authenticatePusher(telegramId: number, socketId: string, channelName: string) {
+  async authenticatePusher(telegramId: number, socketId: string, channelName: string, email?: string) {
     try {
-      const user = await UserModel.findOne({ telegramId });
+      // Get the specified email or default email
+      const userEmail = await UserEmailModel.findOne(
+        email 
+          ? { telegramId, email }
+          : { telegramId, isDefault: true }
+      );
       
-      if (!user || !user.token) {
+      if (!userEmail || !userEmail.token) {
         return { success: false, message: 'Please login first' };
       }
       
@@ -23,7 +28,10 @@ export class NotificationService {
         },
         {
           headers: {
-            Authorization: `Bearer ${user.token}`
+            Authorization: `Bearer ${userEmail.token}`,
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",
+            "Content-Type": "application/json",
+            "Accept": "application/json"
           }
         }
       );

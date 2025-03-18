@@ -1,6 +1,6 @@
 import * as Configs from '../../src/configs';
 import { CopperxPayoutService } from './copperxPayout.service';
-import { UserModel } from '../models/User.model';
+import { UserEmailModel } from '../models/UserEmail.model';
 
 export class WalletService {
   private copperxService: CopperxPayoutService;
@@ -9,15 +9,19 @@ export class WalletService {
     this.copperxService = new CopperxPayoutService();
   }
 
-  async getWallets(telegramId: number) {
+  async getWallets(telegramId: number, email?: string) {
     try {
-      const user = await UserModel.findOne({ telegramId });
+      const userEmail = await UserEmailModel.findOne(
+        email 
+          ? { telegramId, email }
+          : { telegramId, isDefault: true }
+      );
       
-      if (!user || !user.token) {
+      if (!userEmail || !userEmail.token) {
         return { success: false, message: 'Please login first' };
       }
       
-      const wallets = await this.copperxService.getWallets(user.token);
+      const wallets = await this.copperxService.getWallets(userEmail.token);
       
       if (!wallets) {
         return { success: false, message: 'Failed to get wallets' };
@@ -30,15 +34,19 @@ export class WalletService {
     }
   }
 
-  async getWalletBalances(telegramId: number) {
+  async getWalletBalances(telegramId: number, email?: string) {
     try {
-      const user = await UserModel.findOne({ telegramId });
+      const userEmail = await UserEmailModel.findOne(
+        email 
+          ? { telegramId, email }
+          : { telegramId, isDefault: true }
+      );
       
-      if (!user || !user.token) {
+      if (!userEmail || !userEmail.token) {
         return { success: false, message: 'Please login first' };
       }
       
-      const balances = await this.copperxService.getWalletBalances(user.token);
+      const balances = await this.copperxService.getWalletBalances(userEmail.token);
       
       if (!balances) {
         return { success: false, message: 'Failed to get wallet balances' };
@@ -51,15 +59,19 @@ export class WalletService {
     }
   }
 
-  async getDefaultWallet(telegramId: number) {
+  async getDefaultWallet(telegramId: number, email?: string) {
     try {
-      const user = await UserModel.findOne({ telegramId });
+      const userEmail = await UserEmailModel.findOne(
+        email 
+          ? { telegramId, email }
+          : { telegramId, isDefault: true }
+      );
       
-      if (!user || !user.token) {
+      if (!userEmail || !userEmail.token) {
         return { success: false, message: 'Please login first' };
       }
       
-      const defaultWallet = await this.copperxService.getDefaultWallet(user.token);
+      const defaultWallet = await this.copperxService.getDefaultWallet(userEmail.token);
       
       if (!defaultWallet) {
         return { success: false, message: 'Failed to get default wallet' };
@@ -72,15 +84,19 @@ export class WalletService {
     }
   }
 
-  async setDefaultWallet(telegramId: number, walletId: string) {
+  async setDefaultWallet(telegramId: number, walletId: string, email?: string) {
     try {
-      const user = await UserModel.findOne({ telegramId });
+      const userEmail = await UserEmailModel.findOne(
+        email 
+          ? { telegramId, email }
+          : { telegramId, isDefault: true }
+      );
       
-      if (!user || !user.token) {
+      if (!userEmail || !userEmail.token) {
         return { success: false, message: 'Please login first' };
       }
       
-      const result = await this.copperxService.setDefaultWallet(user.token, walletId);
+      const result = await this.copperxService.setDefaultWallet(userEmail.token, walletId);
       
       if (!result) {
         return { success: false, message: 'Failed to set default wallet' };

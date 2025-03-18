@@ -1,6 +1,6 @@
 import * as Configs from '../../src/configs';
 import { CopperxPayoutService } from './copperxPayout.service';
-import { UserModel } from '../models/User.model';
+import { UserEmailModel } from '../models/UserEmail.model';
 
 export class TransferService {
   private copperxService: CopperxPayoutService;
@@ -9,15 +9,19 @@ export class TransferService {
     this.copperxService = new CopperxPayoutService();
   }
 
-  async getTransactionHistory(telegramId: number, page = 1, limit = 10) {
+  async getTransactionHistory(telegramId: number, page = 1, limit = 10, email?: string) {
     try {
-      const user = await UserModel.findOne({ telegramId });
+      const userEmail = await UserEmailModel.findOne(
+        email 
+          ? { telegramId, email }
+          : { telegramId, isDefault: true }
+      );
       
-      if (!user || !user.token) {
+      if (!userEmail || !userEmail.token) {
         return { success: false, message: 'Please login first' };
       }
       
-      const history = await this.copperxService.getTransactionHistory(user.token, page, limit);
+      const history = await this.copperxService.getTransactionHistory(userEmail.token, page, limit);
       
       if (!history) {
         return { success: false, message: 'Failed to get transaction history' };
@@ -30,15 +34,19 @@ export class TransferService {
     }
   }
 
-  async sendFundsToEmail(telegramId: number, email: string, amount: number, currency: string, message?: string) {
+  async sendFundsToEmail(telegramId: number, recipientEmail: string, amount: number, currency: string, message?: string, senderEmail?: string) {
     try {
-      const user = await UserModel.findOne({ telegramId });
+      const userEmail = await UserEmailModel.findOne(
+        senderEmail 
+          ? { telegramId, email: senderEmail }
+          : { telegramId, isDefault: true }
+      );
       
-      if (!user || !user.token) {
+      if (!userEmail || !userEmail.token) {
         return { success: false, message: 'Please login first' };
       }
       
-      const result = await this.copperxService.sendFundsToEmail(user.token, email, amount, currency, message);
+      const result = await this.copperxService.sendFundsToEmail(userEmail.token, recipientEmail, amount, currency, message);
       
       if (!result) {
         return { success: false, message: 'Failed to send funds' };
@@ -51,15 +59,19 @@ export class TransferService {
     }
   }
 
-  async sendFundsToWallet(telegramId: number, address: string, amount: number, currency: string, network: string) {
+  async sendFundsToWallet(telegramId: number, address: string, amount: number, currency: string, network: string, email?: string) {
     try {
-      const user = await UserModel.findOne({ telegramId });
+      const userEmail = await UserEmailModel.findOne(
+        email 
+          ? { telegramId, email }
+          : { telegramId, isDefault: true }
+      );
       
-      if (!user || !user.token) {
+      if (!userEmail || !userEmail.token) {
         return { success: false, message: 'Please login first' };
       }
       
-      const result = await this.copperxService.sendFundsToWallet(user.token, address, amount, currency, network);
+      const result = await this.copperxService.sendFundsToWallet(userEmail.token, address, amount, currency, network);
       
       if (!result) {
         return { success: false, message: 'Failed to send funds to wallet' };
@@ -72,15 +84,19 @@ export class TransferService {
     }
   }
 
-  async withdrawToBank(telegramId: number, amount: number, currency: string) {
+  async withdrawToBank(telegramId: number, amount: number, currency: string, email?: string) {
     try {
-      const user = await UserModel.findOne({ telegramId });
+      const userEmail = await UserEmailModel.findOne(
+        email 
+          ? { telegramId, email }
+          : { telegramId, isDefault: true }
+      );
       
-      if (!user || !user.token) {
+      if (!userEmail || !userEmail.token) {
         return { success: false, message: 'Please login first' };
       }
       
-      const result = await this.copperxService.withdrawToBank(user.token, amount, currency);
+      const result = await this.copperxService.withdrawToBank(userEmail.token, amount, currency);
       
       if (!result) {
         return { success: false, message: 'Failed to withdraw to bank' };

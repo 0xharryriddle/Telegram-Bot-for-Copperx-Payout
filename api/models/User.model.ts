@@ -2,13 +2,9 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IUser extends Document {
   telegramId: number;
-  email?: string;
-  sid?: string;
-  token?: string;
-  isAuthenticated: boolean;
-  organizationId?: string;
-  lastOtpRequestTime?: Date;
-  lastLoginTime?: Date;
+  username?: string;
+  firstName?: string;
+  lastName?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -20,28 +16,17 @@ const UserSchema = new Schema<IUser>(
       required: true,
       unique: true,
     },
-    email: {
+    username: {
       type: String,
       trim: true,
     },
-    sid: {
+    firstName: {
       type: String,
+      trim: true,
     },
-    token: {
+    lastName: {
       type: String,
-    },
-    isAuthenticated: {
-      type: Boolean,
-      default: false,
-    },
-    organizationId: {
-      type: String,
-    },
-    lastOtpRequestTime: {
-      type: Date,
-    },
-    lastLoginTime: {
-      type: Date,
+      trim: true,
     },
   },
   {
