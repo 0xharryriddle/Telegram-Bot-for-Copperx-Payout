@@ -10,6 +10,7 @@ const envSchema = z.object({
     }),
   NODE_ENV: z.enum(['development', 'production', 'test']),
   BASE_URL: z.string().url(),
+  SERVER_URL: z.string().url(),
   BOT_TOKEN: z.string(),
   MONGO_URI: z.string(),
   REDIS_URL: z.string(),
@@ -23,7 +24,17 @@ export const ENV = envSchema.parse(process.env);
 
 // Add validation for production environment
 if (process.env.NODE_ENV === 'production') {
-  const requiredFields = ['BOT_TOKEN', 'BASE_URL', 'MONGO_URI', 'REDIS_URL', 'PUSHER_APP_ID', 'PUSHER_KEY', 'PUSHER_SECRET', 'PUSHER_CLUSTER'];
+  const requiredFields = [
+    'BOT_TOKEN',
+    'BASE_URL',
+    'SERVER_URL',
+    'MONGO_URI',
+    'REDIS_URL',
+    'PUSHER_APP_ID',
+    'PUSHER_KEY',
+    'PUSHER_SECRET',
+    'PUSHER_CLUSTER',
+  ];
 
   requiredFields.forEach((field) => {
     if (!process.env[field]) {

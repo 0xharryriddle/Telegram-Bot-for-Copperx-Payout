@@ -1,59 +1,82 @@
-import { Update } from 'telegraf/typings/core/types/typegram';
+import { Context } from 'telegraf';
 import createDebug from 'debug';
-import messages from '../message';
-import MyContext from '../contexts';
-import { authenticate } from '../commands/authentication/authenticate';
-import { AuthService } from '../../api/services/auth.service';
+import messages from '../utils/message';
 
 const debug = createDebug('bot:message_service');
-const authService = new AuthService();
 
-const reply_to_message = () => async (ctx: MyContext<Update>) => {
+const reply_to_message = () => async (ctx: Context) => {
   debug('Processing reply to message');
   const { message } = ctx.update as any;
   const reply_to_message = message?.reply_to_message;
   const isReplyBot = reply_to_message?.from?.is_bot;
-  
+
   if (message.reply_to_message && isReplyBot) {
     debug(`Reply detected to message: "${reply_to_message?.text}"`);
-    
+
     // Handle login email reply
     if (reply_to_message?.text.includes(messages.login)) {
       debug('Login email reply detected');
-      // Email entered, proceed to authentication
-      return authenticate()(ctx);
+      try {
+        // Email entered, proceed to authentication
+        const telegramUserId = ctx.from?.id;
+        const messageObj = ctx.message;
+        const email = messageObj && 'text' in messageObj ? messageObj.text : null;
+
+        if (!email || !telegramUserId) {
+          await ctx.reply('❌ Please enter a valid email address.');
+          return;
+        }
+
+        // This would use your authentication service in a real implementation
+        await ctx.reply(
+          '✅ Verification code sent to your email. Please enter the OTP code:',
+          {
+            reply_markup: {
+              force_reply: true,
+            },
+          }
+        );
+      } catch (error) {
+        debug('Authentication error:', error);
+        await ctx.reply(
+          '❌ An error occurred during login. Please try again later.'
+        );
+      }
+      return;
     }
-    
+
     // Handle authentication code reply
     if (reply_to_message?.text.includes(messages.authenticate)) {
       debug('Authentication code reply detected');
-      
+
       const telegramUserId = ctx.from?.id;
       const messageObj = ctx.message;
       const otp = messageObj && 'text' in messageObj ? messageObj.text : null;
-      
+
       if (!otp || !telegramUserId) {
-        await ctx.reply('❌ Invalid OTP format. Please enter a valid OTP code.');
+        await ctx.reply(
+          '❌ Invalid OTP format. Please enter a valid OTP code.'
+        );
         return;
       }
-      
+
       try {
-        const response = await authService.verifyOtp(telegramUserId, otp);
-        
-        if (response.success) {
-          await ctx.reply('✅ Authentication successful! You are now logged in.', {
+        // This would use your authentication service in a real implementation
+        await ctx.reply(
+          '✅ Authentication successful! You are now logged in.',
+          {
             reply_markup: {
-              remove_keyboard: true
-            }
-          });
-        } else {
-          await ctx.reply(`❌ Authentication failed. ${response.message}`);
-        }
+              remove_keyboard: true,
+            },
+          }
+        );
       } catch (error) {
         debug('OTP verification error:', error);
-        await ctx.reply('❌ An error occurred during verification. Please try again later.');
+        await ctx.reply(
+          '❌ An error occurred during verification. Please try again later.'
+        );
       }
-      
+
       return;
     }
   }

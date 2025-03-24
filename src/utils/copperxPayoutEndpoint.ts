@@ -1,213 +1,144 @@
-import { ENV } from '../configs';
-
 interface BaseEndpoint {
   name: string;
   endpoint: string;
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE';
-  auth: boolean;
+}
+
+// Notification endpoints interface
+interface NotificationEndpoints {
+  auth: BaseEndpoint;
 }
 
 // Auth endpoints interface
 interface AuthEndpoints {
   emailOtpRequest: BaseEndpoint;
   emailOtpAuthenticate: BaseEndpoint;
-  web3auth: BaseEndpoint;
   logout: BaseEndpoint;
   me: BaseEndpoint;
-  pointsToken: BaseEndpoint;
-  flags: BaseEndpoint;
-  googleAuthenticate: BaseEndpoint;
 }
 
-// Personal Access Token endpoints interface
-interface PersonalAccessTokenEndpoints {
-  list: BaseEndpoint;
-  create: BaseEndpoint;
-  getById: BaseEndpoint;
-  update: BaseEndpoint;
-  delete: BaseEndpoint;
-  regenerate: BaseEndpoint;
+// KYC endpoints interface
+interface KycEndpoints {
+  get: BaseEndpoint;
+}
+
+// Transfer endpoints interface
+interface TransferEndpoints {
+  sendPayment: BaseEndpoint;
+  withdrawBalance: BaseEndpoint;
+  createOfframpTransfer: BaseEndpoint;
+  sendPaymentInBatch: BaseEndpoint;
 }
 
 // Wallet endpoints interface
 interface WalletEndpoints {
   list: BaseEndpoint;
-  create: BaseEndpoint;
   getDefault: BaseEndpoint;
   setDefault: BaseEndpoint;
-  getBalance: BaseEndpoint;
+  getDefaultBalance: BaseEndpoint;
   getBalances: BaseEndpoint;
-  getNetworks: BaseEndpoint;
+  generateOrGetExisting: BaseEndpoint;
+  supportedNetworks: BaseEndpoint;
   getTokenBalance: BaseEndpoint;
-  recoverTokens: BaseEndpoint;
 }
 
 // Root endpoint interface
 interface ApiEndpoints {
   base: BaseEndpoint;
   auth: AuthEndpoints;
-  personalAccessTokens: PersonalAccessTokenEndpoints;
+  kycs: KycEndpoints;
   wallets: WalletEndpoints;
+  transfers: TransferEndpoints;
+  notifications: NotificationEndpoints;
 }
 
 const endpoints: ApiEndpoints = {
   base: {
     name: 'root',
-    endpoint: `${ENV.BASE_URL}/`,
-    method: 'GET',
-    auth: false,
+    endpoint: `/`,
   },
   auth: {
     emailOtpRequest: {
       name: 'Email OTP Request',
-      endpoint: `${ENV.BASE_URL}/api/auth/email-otp/request`,
-      method: 'POST',
-      auth: false,
+      endpoint: `/api/auth/email-otp/request`,
     },
     emailOtpAuthenticate: {
       name: 'Email OTP Authenticate',
-      endpoint: `${ENV.BASE_URL}/api/auth/email-otp/authenticate`,
-      method: 'POST',
-      auth: false,
-    },
-    web3auth: {
-      name: 'Web3 Authentication',
-      endpoint: `${ENV.BASE_URL}/api/auth/web3auth/authenticate`,
-      method: 'POST',
-      auth: false,
+      endpoint: `/api/auth/email-otp/authenticate`,
     },
     logout: {
       name: 'Logout',
-      endpoint: `${ENV.BASE_URL}/api/auth/logout`,
-      method: 'POST',
-      auth: true,
+      endpoint: `/api/auth/logout`,
     },
     me: {
       name: 'Get User Info',
-      endpoint: `${ENV.BASE_URL}/api/auth/me`,
-      method: 'GET',
-      auth: true,
-    },
-    pointsToken: {
-      name: 'Points Token',
-      endpoint: `${ENV.BASE_URL}/api/auth/points-token`,
-      method: 'POST',
-      auth: true,
-    },
-    flags: {
-      name: 'Update Flags',
-      endpoint: `${ENV.BASE_URL}/api/auth/flags`,
-      method: 'PUT',
-      auth: true,
-    },
-    googleAuthenticate: {
-      name: 'Google Authentication',
-      endpoint: `${ENV.BASE_URL}/api/auth/google/authenticate`,
-      method: 'POST',
-      auth: false,
+      endpoint: `/api/auth/me`,
     },
   },
-  personalAccessTokens: {
-    list: {
-      name: 'List Tokens',
-      endpoint: `${ENV.BASE_URL}/api/personal-access-tokens`,
-      method: 'GET',
-      auth: true,
-    },
-    create: {
-      name: 'Create Token',
-      endpoint: `${ENV.BASE_URL}/api/personal-access-tokens`,
-      method: 'POST',
-      auth: true,
-    },
-    getById: {
-      name: 'Get Token',
-      endpoint: `${ENV.BASE_URL}/api/personal-access-tokens/{id}`,
-      method: 'GET',
-      auth: true,
-    },
-    update: {
-      name: 'Update Token',
-      endpoint: `${ENV.BASE_URL}/api/personal-access-tokens/{id}`,
-      method: 'PUT',
-      auth: true,
-    },
-    delete: {
-      name: 'Delete Token',
-      endpoint: `${ENV.BASE_URL}/api/personal-access-tokens/{id}`,
-      method: 'DELETE',
-      auth: true,
-    },
-    regenerate: {
-      name: 'Regenerate Token',
-      endpoint: `${ENV.BASE_URL}/api/personal-access-tokens/{id}/regenerate`,
-      method: 'POST',
-      auth: true,
+  kycs: {
+    get: {
+      name: 'Get KYC',
+      endpoint: '/api/kycs',
     },
   },
   wallets: {
     list: {
       name: 'List Wallets',
-      endpoint: `${ENV.BASE_URL}/api/wallets`,
-      method: 'GET',
-      auth: true,
+      endpoint: `/api/wallets`,
     },
-    create: {
-      name: 'Create Wallet',
-      endpoint: `${ENV.BASE_URL}/api/wallets`,
-      method: 'POST',
-      auth: true,
+    generateOrGetExisting: {
+      name: 'Generate Wallet',
+      endpoint: `/api/wallets`,
     },
     getDefault: {
       name: 'Get Default Wallet',
-      endpoint: `${ENV.BASE_URL}/api/wallets/default`,
-      method: 'GET',
-      auth: true,
+      endpoint: `/api/wallets/default`,
     },
     setDefault: {
       name: 'Set Default Wallet',
-      endpoint: `${ENV.BASE_URL}/api/wallets/default`,
-      method: 'POST',
-      auth: true,
+      endpoint: `/api/wallets/default`,
     },
-    getBalance: {
-      name: 'Get Balance',
-      endpoint: `${ENV.BASE_URL}/api/wallets/balance`,
-      method: 'GET',
-      auth: true,
+    getDefaultBalance: {
+      name: 'Get Default Wallet Balance',
+      endpoint: `/api/wallets/balance`,
     },
     getBalances: {
       name: 'Get All Balances',
-      endpoint: `${ENV.BASE_URL}/api/wallets/balances`,
-      method: 'GET',
-      auth: true,
+      endpoint: `/api/wallets/balances`,
     },
-    getNetworks: {
-      name: 'Get Networks',
-      endpoint: `${ENV.BASE_URL}/api/wallets/networks`,
-      method: 'GET',
-      auth: true,
+    supportedNetworks: {
+      name: 'Supported Networks',
+      endpoint: `/api/wallets/networks`,
     },
     getTokenBalance: {
       name: 'Get Token Balance',
-      endpoint: `${ENV.BASE_URL}/api/wallets/{chainId}/tokens/{token}/balance`,
-      method: 'GET',
-      auth: true,
+      endpoint: `/api/wallets/{chainId}/tokens/{token}/balance`,
     },
-    recoverTokens: {
-      name: 'Recover Tokens',
-      endpoint: `${ENV.BASE_URL}/api/wallets/recover-tokens`,
-      method: 'POST',
-      auth: true,
+  },
+  transfers: {
+    sendPayment: {
+      name: 'Send Payment',
+      endpoint: `/api/transfers/send`,
+    },
+    withdrawBalance: {
+      name: 'Withdraw Balance',
+      endpoint: `/api/transfers/wallet-withdraw`,
+    },
+    createOfframpTransfer: {
+      name: 'Create Offramp Transfer',
+      endpoint: `/api/transfers/offramp`,
+    },
+    sendPaymentInBatch: {
+      name: 'Send Payment In Batch',
+      endpoint: `/api/transfers/send-batch`,
+    },
+  },
+  notifications: {
+    auth: {
+      name: 'Notification Auth',
+      endpoint: `/api/notifications/auth`,
     },
   },
 };
 
 export { endpoints };
-export type {
-  BaseEndpoint,
-  AuthEndpoints,
-  PersonalAccessTokenEndpoints,
-  WalletEndpoints,
-  ApiEndpoints,
-};
+export type { BaseEndpoint, AuthEndpoints, WalletEndpoints, ApiEndpoints };

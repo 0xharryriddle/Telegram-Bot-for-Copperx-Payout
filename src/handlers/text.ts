@@ -1,7 +1,6 @@
-import MyContext from '../contexts';
-import { Update } from 'telegraf/typings/core/types/typegram';
+import { Context } from 'telegraf';
 
-const text = () => async (ctx: MyContext<Update>) => {
+const text = () => async (ctx: Context) => {
   await ctx.reply('👉🏻👈🏻');
 };
 
