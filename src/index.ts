@@ -1,7 +1,7 @@
 import { Context, Telegraf } from 'telegraf';
 // import './api/databases/redis';
 import { Request, Response } from 'express';
-import { databases, setUp } from './api/databases/index';
+import { setUp } from './api/databases/index';
 import Routes from './routes/index';
 import * as Configs from './configs/index';
 import production from './core/production';
@@ -23,11 +23,6 @@ bot.command('start', (ctx) => {
   console.log('Start command received');
   ctx.reply('Bot is up and running! 🚀');
 });
-
-//prod mode (Express)
-export const startExpress = async (req: Request, res: Response) => {
-  await production(bot);
-};
 
 // Start the bot based on environment
 async function startBot() {
