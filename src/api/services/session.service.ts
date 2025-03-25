@@ -1,6 +1,6 @@
 import { UserSession, UserState } from '../types';
-import { databases } from '../databases';
-import * as Configs from '../../configs';
+import { databases } from '../databases/index';
+import * as Configs from '../../configs/index';
 
 export class SessionService {
   private static instance: SessionService;

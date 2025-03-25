@@ -1,6 +1,6 @@
 import Pusher, { Channel } from 'pusher-js';
 
-import * as Configs from '../../configs';
+import * as Configs from '../../configs/index';
 import { CopperxPayoutService } from './copperxPayout.service';
 import { Context, Telegraf } from 'telegraf';
 import { Update } from 'telegraf/types';

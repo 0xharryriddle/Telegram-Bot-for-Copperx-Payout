@@ -1,5 +1,4 @@
 import { Markup, Telegraf } from 'telegraf';
-import { getBackButton } from './index';
 
 /**
  * Setup transfer related menus

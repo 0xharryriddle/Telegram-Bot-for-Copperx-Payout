@@ -5,7 +5,7 @@ import { Message, Update } from 'telegraf/types';
 import { AuthService } from '../api/services/auth.service';
 import { validateOtp } from '../api/utils/validation';
 import { SessionService } from '../api/services/session.service';
-import * as Types from '../api/types';
+import * as Types from '../api/types/index';
 
 const debug = require('debug')('bot:auth-command');
 

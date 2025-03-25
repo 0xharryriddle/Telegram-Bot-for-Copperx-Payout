@@ -1,9 +1,9 @@
 import axios, { AxiosError, AxiosInstance } from 'axios';
 import { ChannelAuthorizationCallback } from 'pusher-js';
 import createDebug from 'debug';
-import * as Configs from '../../configs';
+import * as Configs from '../../configs/index';
 import { endpoints } from '../../utils/copperxPayoutEndpoint';
-import * as Types from '../types';
+import * as Types from '../types/index';
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1 second

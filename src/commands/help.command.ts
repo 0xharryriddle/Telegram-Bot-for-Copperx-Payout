@@ -1,6 +1,5 @@
 import createDebug from 'debug';
 import { Context } from 'telegraf';
-import { Markup } from 'telegraf';
 import { Update } from 'telegraf/types';
 
 const debug = createDebug('bot:help_command');

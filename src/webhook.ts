@@ -1,8 +1,8 @@
 import express from 'express';
 import { Telegraf } from 'telegraf';
-import * as Configs from './configs';
-import { setupMenus } from './menus';
-import botRoutes from './routes';
+import * as Configs from './configs/index';
+import { setupMenus } from './menus/index';
+import botRoutes from './routes/index';
 import bodyParser from 'body-parser';
 import * as path from 'path';
 

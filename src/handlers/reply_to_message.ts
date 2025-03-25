@@ -20,7 +20,8 @@ const reply_to_message = () => async (ctx: Context) => {
         // Email entered, proceed to authentication
         const telegramUserId = ctx.from?.id;
         const messageObj = ctx.message;
-        const email = messageObj && 'text' in messageObj ? messageObj.text : null;
+        const email =
+          messageObj && 'text' in messageObj ? messageObj.text : null;
 
         if (!email || !telegramUserId) {
           await ctx.reply('❌ Please enter a valid email address.');
@@ -34,12 +35,12 @@ const reply_to_message = () => async (ctx: Context) => {
             reply_markup: {
               force_reply: true,
             },
-          }
+          },
         );
       } catch (error) {
         debug('Authentication error:', error);
         await ctx.reply(
-          '❌ An error occurred during login. Please try again later.'
+          '❌ An error occurred during login. Please try again later.',
         );
       }
       return;
@@ -55,7 +56,7 @@ const reply_to_message = () => async (ctx: Context) => {
 
       if (!otp || !telegramUserId) {
         await ctx.reply(
-          '❌ Invalid OTP format. Please enter a valid OTP code.'
+          '❌ Invalid OTP format. Please enter a valid OTP code.',
         );
         return;
       }
@@ -68,12 +69,12 @@ const reply_to_message = () => async (ctx: Context) => {
             reply_markup: {
               remove_keyboard: true,
             },
-          }
+          },
         );
       } catch (error) {
         debug('OTP verification error:', error);
         await ctx.reply(
-          '❌ An error occurred during verification. Please try again later.'
+          '❌ An error occurred during verification. Please try again later.',
         );
       }
 

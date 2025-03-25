@@ -3,7 +3,7 @@ import { Message, Update } from 'telegraf/types';
 import createDebug from 'debug';
 import { WalletService } from '../api/services/wallet.service';
 import { AuthService } from '../api/services/auth.service';
-import * as Types from '../api/types';
+import * as Types from '../api/types/index';
 import { escapeMarkdownV2, upperFirstCase } from '../api/utils/conversion';
 import { getWalletInfoMenu, getWalletMenu } from '../menus/wallet.menu';
 

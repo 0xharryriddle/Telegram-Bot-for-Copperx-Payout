@@ -1,4 +1,4 @@
-import * as Types from '../types';
+import * as Types from '../types/index';
 
 export enum UserState {
   IDLE = 'IDLE',

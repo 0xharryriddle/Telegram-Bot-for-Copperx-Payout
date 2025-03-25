@@ -1,8 +1,7 @@
-import * as Configs from '../../configs';
-import * as Types from '../types';
+import * as Configs from '../../configs/index';
+import * as Types from '../types/index';
 import { CopperxPayoutService } from './copperxPayout.service';
 import { AuthService } from './auth.service';
-import { Context } from 'telegraf';
 
 export class TransferService {
   private static instance: TransferService;
