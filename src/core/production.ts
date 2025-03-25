@@ -15,11 +15,13 @@ const SERVER_URL = Configs.ENV.SERVER_URL;
  */
 const production = async (bot: Telegraf<Context<Update>>) => {
   debug('Bot starting in production mode...');
+  console.log('Bot starting in production mode...');
 
   try {
     // Set up webhook
     const webhookUrl = `${SERVER_URL}/${SECRET_PATH}`;
     await bot.telegram.setWebhook(webhookUrl);
+    console.log(`Webhook set to: ${webhookUrl}`);
     debug(`Webhook set to: ${webhookUrl}`);
 
     // Setup express app to handle webhook
