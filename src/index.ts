@@ -28,27 +28,25 @@ bot.command('start', (ctx) => {
 async function startBot() {
   try {
     await setUp();
-    debug('Databases connected successfully!');
+    Configs.logger.info('Databases connected successfully!');
 
     await NotificationService.getInstance().subscribeForAll(
       bot.context as Context<Update>,
     );
     if (Configs.ENV.NODE_ENV === 'production') {
       await production(bot);
-      debug('Bot started in production mode');
+      Configs.logger.info('Bot started in production mode');
     } else {
       await bot.launch();
     }
   } catch (error) {
-    debug('Error starting bot:', error);
+    Configs.logger.info('Error starting bot:', error);
   }
 }
 
-if (Configs.ENV.NODE_ENV !== 'production') {
-  startBot().catch((err) => {
-    process.exit(1);
-  });
-}
+startBot()
+  .then(() => process.exit(0))
+  .catch((err) => process.exit(1));
 
 // Enable graceful stop
 process.once('SIGINT', () => {
