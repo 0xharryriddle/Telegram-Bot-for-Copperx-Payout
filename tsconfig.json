@@ -1,14 +1,25 @@
 {
   "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    },
     "strict": true,
     "target": "esnext",
     "moduleResolution": "node",
-    "module": "commonjs",
+    "esModuleInterop": true,
     "skipLibCheck": true,
     "sourceMap": true,
     "outDir": "public",
-    "lib": ["esnext", "dom"],
+    "lib": [
+      "esnext",
+      "dom"
+    ],
     "resolveJsonModule": true
   },
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

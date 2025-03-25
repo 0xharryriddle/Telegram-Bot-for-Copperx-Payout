@@ -1,34 +1,127 @@
-# Telegram Bot Vercel Boilerplate
+# CopperX Payout Telegram Bot
 
-Telegram Bot Vercel Boilerplate based on Node.js and [Telegraf](https://github.com/telegraf/telegraf) framework.
+🚀 **CopperX Payout Telegram Bot** is a webhook-based Telegram bot that enables seamless crypto transactions and wallet management using the CopperX API. This bot provides features like balance checking, fund transfers, transaction history, and authentication.
 
-This template inspired by [Telegram Bot Boilerplate](https://github.com/yakovlevyuri/telegram-bot-boilerplate) for easily deploy to [Vercel](https://vercel.com).
+## 📌 Features
 
-[![Live Demo](https://img.shields.io/badge/Medium-12100E?style=for-the-badge&logo=medium&logoColor=white)](https://medium.com/@7rodma/deploy-a-serverless-telegram-chatbot-using-vercel-57665d942a58)
+* ✅ Secure authentication via CopperX API
+* 💰 Check wallet balances
+* 🔄 View transaction history
+* 💸 Send funds to email or wallet addresses
+* 🏦 Withdraw funds to bank accounts
+* 🛡️ Password-protected authentication
+* 🎛️ Interactive menus for easy navigation
+* 📡 Webhook-based for real-time updates
 
-## Before you start
-
-First rename `.env-sample` file to `.env` and fill in all necessary values.
+## 🏗️ Project Structure
 
 ```
-BOT_TOKEN="<YOUR_BOT_API_TOKEN>"
+src/
+├── api/              # API integration services
+│   ├── services/     # Service classes for API calls
+│   └── types/        # TypeScript types for API
+├── commands/         # Bot command handlers
+├── configs/          # Configuration files
+├── contexts/         # Telegram context definitions
+├── handlers/         # Message and event handlers
+├── menus/            # Interactive UI menus
+│   ├── account.menu.ts
+│   ├── transfer.menu.ts
+│   ├── wallet.menu.ts
+│   └── index.ts
+├── routes/           # Command routing
+├── utils/            # Utility functions
+└── webhook.ts        # Main webhook server
 ```
 
-## Start your local server
+## 🔧 Setup & Installation
+
+### **1️⃣ Clone the repository**
+
+```bash
+git clone https://github.com/prospercoded/copperx-payout-bot.git
+cd copperx-payout-bot
+```
+
+### **2️⃣ Install dependencies**
+
+```bash
+npm install
+```
+
+### **3️⃣ Set up environment variables**
+
+Create a `.env` file and add:
 
 ```
-yarn
-yarn dev
+BOT_TOKEN=your_telegram_bot_token
+SERVER_URL=https://your-server-url.com
 ```
 
-## Production
+### **4️⃣ Run the server**
 
-You can fork this template and do the necessary changes you need. Then you when are done with your changes simply goto [vercel git import](https://vercel.com/import/git).
+#### Development mode:
 
-Reference to [this update](https://vercel.com/docs/security/deployment-protection#migrating-to-standard-protection), you need turn off `Vercel Authentication`, Settings => Deployment Protection
+```bash
+npm run dev
+```
 
-Feel free to create PR!
+#### Production mode:
 
-## Demo
+```bash
+npm run build
+npm run start
+```
 
-You can see a working version of the bot at [@Node_api_m_bot](https://t.me/Node_api_m_bot)
+## 📡 Using the Bot
+
+### **Start the Bot**
+
+Send `/start` to the bot to begin and see the main menu.
+
+### **Authentication**
+
+Use `/login` to authenticate with CopperX. You'll receive an OTP verification code by email.
+
+### **Check Wallet Balance**
+
+Use `/wallet` or the Wallet menu to check your balances.
+
+### **Transfer Funds**
+
+Use `/send` or the Transfer menu to send funds to email or wallet addresses.
+
+### **Transaction History**
+
+Use `/history` or the Transfer menu to view your transaction history.
+
+### **Withdraw Funds**
+
+Use `/withdraw` or the Transfer menu to withdraw funds to your bank account.
+
+## 🛠️ Interactive Menus
+
+The bot features an intuitive, interactive menu system:
+
+- 💰 **Wallet Menu**: View wallets, check balance, set default wallet
+- 🔄 **Transfer Menu**: Send funds, view history, withdraw
+- 👤 **Account Menu**: Login, profile, KYC status, logout
+
+## 🚀 Contributing
+
+1. Fork the project
+2. Create a feature branch (`git checkout -b feature-xyz`)
+3. Commit changes (`git commit -m 'Add feature XYZ'`)
+4. Push to the branch (`git push origin feature-xyz`)
+5. Create a Pull Request
+
+## 📜 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 📞 Contact
+
+For support, reach out via:
+
+* **Telegram**: @prospercoded
+* **Email**: buildminds.direct@gmail.com

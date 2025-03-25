@@ -1,38 +1,38 @@
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import { Context, Telegraf,  } from 'telegraf';
 import createDebug from 'debug';
-import { Context, Telegraf } from 'telegraf';
-import { Update } from 'telegraf/typings/core/types/typegram';
+import express from 'express';
+import * as Configs from '../configs';
+import { Update } from 'telegraf/types';
 
-const debug = createDebug('bot:dev');
+const debug = createDebug('bot:production');
+const app = express();
+const PORT = process.env.PORT || 3000;
+const SECRET_PATH = 'secret-path'; // Path for the webhook
+const SERVER_URL = Configs.ENV.SERVER_URL;
 
-const PORT = (process.env.PORT && parseInt(process.env.PORT, 10)) || 3000;
-const VERCEL_URL = `${process.env.VERCEL_URL}`;
+/**
+ * Setup production mode with webhook
+ */
+const production = async (bot: Telegraf<Context<Update>>) => {
+  debug('Bot starting in production mode...');
 
-const production = async (
-  req: VercelRequest,
-  res: VercelResponse,
-  bot: Telegraf<Context<Update>>,
-) => {
-  debug('Bot runs in production mode');
-  debug(`setting webhook: ${VERCEL_URL}`);
+  try {
+    // Set up webhook
+    const webhookUrl = `${SERVER_URL}/${SECRET_PATH}`;
+    await bot.telegram.setWebhook(webhookUrl);
+    debug(`Webhook set to: ${webhookUrl}`);
 
-  if (!VERCEL_URL) {
-    throw new Error('VERCEL_URL is not set.');
+    // Setup express app to handle webhook
+    app.use(bot.webhookCallback(`/${SECRET_PATH}`));
+
+    // Start express server
+    app.listen(PORT, () => {
+      debug(`Express server is listening on port ${PORT}`);
+    });
+  } catch (error) {
+    debug('Error setting webhook:', error);
+    throw error;
   }
-
-  const getWebhookInfo = await bot.telegram.getWebhookInfo();
-  if (getWebhookInfo.url !== VERCEL_URL + '/api') {
-    debug(`deleting webhook ${VERCEL_URL}`);
-    await bot.telegram.deleteWebhook();
-    debug(`setting webhook: ${VERCEL_URL}/api`);
-    await bot.telegram.setWebhook(`${VERCEL_URL}/api`);
-  }
-
-  if (req.method === 'POST') {
-    await bot.handleUpdate(req.body as unknown as Update, res);
-  } else {
-    res.status(200).json('Listening to bot events...');
-  }
-  debug(`starting webhook on port: ${PORT}`);
 };
-export { production };
+
+export default production;

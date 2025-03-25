@@ -3,8 +3,12 @@
   "public": true,
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/api/(.*)",
       "destination": "api/index.ts"
+    },
+    {
+      "source": "/webhook",
+      "destination": "api/webhook.ts"
     }
   ],
   "redirects": [{ "source": "/", "destination": "/api", "permanent": false }]

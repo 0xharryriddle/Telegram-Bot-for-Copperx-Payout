@@ -1,21 +1,24 @@
-import { Context, Telegraf } from 'telegraf';
-import { Update } from 'telegraf/typings/core/types/typegram';
+import { Telegraf } from 'telegraf';
 import createDebug from 'debug';
 
-const debug = createDebug('bot:dev');
+const debug = createDebug('bot:development');
 
-const development = async (bot: Telegraf<Context<Update>>) => {
-  const botInfo = (await bot.telegram.getMe()).username;
-
-  debug('Bot runs in development mode');
-  debug(`${botInfo} deleting webhook`);
+/**
+ * Setup development mode
+ */
+const development = async (bot: Telegraf) => {
+  const botInfo = await bot.telegram.getMe();
+  debug('Bot starting in development mode...');
+  debug(`${botInfo.username} deleting webhook`);
   await bot.telegram.deleteWebhook();
-  debug(`${botInfo} starting polling`);
+  debug(`${botInfo.username} starting polling`);
 
-  await bot.launch();
-
-  process.once('SIGINT', () => bot.stop('SIGINT'));
-  process.once('SIGTERM', () => bot.stop('SIGTERM'));
+  try {
+    await bot.launch();
+  } catch (error) {
+    debug('Error launching bot:', error);
+    throw error;
+  }
 };
 
-export { development };
+export default development;
