@@ -90,7 +90,7 @@ export class WalletCommands {
     }
   }
 
-  async handleIntializeGeneratingWallet(context: Context<Update>) {
+  async handleInitializeGeneratingWallet(context: Context<Update>) {
     try {
       const chatId = context.chat?.id;
       if (!chatId) {

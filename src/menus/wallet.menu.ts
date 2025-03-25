@@ -38,7 +38,7 @@ export function walletMenu(bot: Telegraf) {
     await ctx.answerCbQuery();
     // Call command handler for generating a new wallet
     const generateWalletHandler = WalletCommands.getInstance();
-    await generateWalletHandler.handleIntializeGeneratingWallet(ctx);
+    await generateWalletHandler.handleInitializeGeneratingWallet(ctx);
   });
 
   bot.action('wallet_token_balance', async (ctx) => {

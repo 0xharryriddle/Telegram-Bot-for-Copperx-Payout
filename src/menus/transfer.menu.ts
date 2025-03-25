@@ -17,10 +17,10 @@ export function transferMenu(bot: Telegraf) {
   // Handle each transfer action
   bot.action('transfer_send', async (ctx) => {
     await ctx.answerCbQuery();
-    await ctx.reply(
-      '📤 *Send funds*\n\nWhere would you like to send funds?',
-      getSendOptions(),
-    );
+    await ctx.reply('📤 *Send funds*\n\nWhere would you like to send funds?', {
+      parse_mode: 'Markdown',
+      ...getSendOptions(),
+    });
   });
 
   bot.action('transfer_history', async (ctx) => {

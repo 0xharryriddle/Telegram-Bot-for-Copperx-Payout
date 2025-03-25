@@ -10,3 +10,6 @@
 {"level":"info","message":"Webhook set to: https://telegram-bot-for-copperx-payout.onrender.com/webhook","timestamp":"2025-03-25T13:12:36.548Z"}
 {"level":"info","message":"CopperX Payout Bot webhook server is running on port 3000","timestamp":"2025-03-25T13:12:36.553Z"}
 {"level":"info","message":"Webhook is set to: https://telegram-bot-for-copperx-payout.onrender.com/webhook","timestamp":"2025-03-25T13:12:36.553Z"}
+{"level":"info","message":"Databases connected successfully!","timestamp":"2025-03-25T14:32:52.751Z"}
+{"level":"info","message":"Bot starting in production mode...","timestamp":"2025-03-25T14:32:52.858Z"}
+{"level":"info","message":"Webhook set to: https://telegram-bot-for-copperx-payout.onrender.com/webhook","timestamp":"2025-03-25T14:32:53.873Z"}

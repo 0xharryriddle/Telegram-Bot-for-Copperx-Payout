@@ -13,6 +13,15 @@
 * 🎛️ Interactive menus for easy navigation
 * 📡 Webhook-based for real-time updates
 
+## 📚 Documentation
+
+Comprehensive documentation is available in the `docs` folder:
+
+* [Setup Instructions](docs/setup.md) - How to install and configure the bot
+* [API Integration](docs/api-integration.md) - Details on how the bot interacts with CopperX API
+* [Command Reference](docs/commands.md) - All available bot commands and their usage
+* [Troubleshooting Guide](docs/troubleshooting.md) - Solutions to common issues
+
 ## 🏗️ Project Structure
 
 ```
@@ -34,7 +43,7 @@ src/
 └── webhook.ts        # Main webhook server
 ```
 
-## 🔧 Setup & Installation
+## 🔧 Quick Start
 
 ### **1️⃣ Clone the repository**
 
@@ -73,6 +82,8 @@ npm run build
 npm run start
 ```
 
+For detailed setup instructions, see the [Setup Guide](docs/setup.md).
+
 ## 📡 Using the Bot
 
 ### **Start the Bot**
@@ -91,13 +102,7 @@ Use `/wallet` or the Wallet menu to check your balances.
 
 Use `/send` or the Transfer menu to send funds to email or wallet addresses.
 
-### **Transaction History**
-
-Use `/history` or the Transfer menu to view your transaction history.
-
-### **Withdraw Funds**
-
-Use `/withdraw` or the Transfer menu to withdraw funds to your bank account.
+See the [Command Reference](docs/commands.md) for a complete list of commands.
 
 ## 🛠️ Interactive Menus
 

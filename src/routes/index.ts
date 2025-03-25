@@ -19,6 +19,7 @@ const index = (bot: Telegraf) => {
     { command: 'balance', description: 'Check your wallet balances' },
     { command: 'setdefault', description: 'Set your default wallet' },
     { command: 'send', description: 'Send funds to email or wallet' },
+    { command: 'transfer', description: 'Transfer funds to email or wallet' },
     { command: 'history', description: 'View your transaction history' },
     { command: 'withdraw', description: 'Withdraw funds to bank account' },
     { command: 'logout', description: 'Logout from your account' },
@@ -63,6 +64,24 @@ const index = (bot: Telegraf) => {
     'wallet',
     async (ctx) =>
       await Commands.WalletCommands.getInstance().handleDefaultWallet(ctx),
+  );
+
+  bot.command(
+    'send',
+    async (ctx) =>
+      await Commands.TransferCommands.getInstance().handleSendOptions(ctx),
+  );
+
+  bot.command(
+    'transfer',
+    async (ctx) =>
+      await Commands.TransferCommands.getInstance().handleTransferMenu(ctx),
+  );
+
+  bot.command(
+    'withdraw',
+    async (ctx) =>
+      await Commands.TransferCommands.getInstance().handleInitiateWithdraw(ctx),
   );
 
   // Actions - Callbacks
