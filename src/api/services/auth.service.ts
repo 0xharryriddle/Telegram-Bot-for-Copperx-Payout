@@ -5,13 +5,16 @@ import * as Types from '../../api/types';
 import { CopperxPayoutService } from './copperxPayout.service';
 import { SessionService } from './session.service';
 import { Update } from 'telegraf/types';
+import { NotificationService } from './notification.service';
 
 export class AuthService {
   private static instance: AuthService;
   private copperxPayoutService: CopperxPayoutService;
+  private notificationService: NotificationService;
   private sessionService = SessionService.getInstance();
 
   private constructor() {
+    this.notificationService = NotificationService.getInstance();
     this.copperxPayoutService = new CopperxPayoutService();
   }
 
@@ -81,6 +84,7 @@ export class AuthService {
       await this.sessionService.updateSession(chatId, {
         state: Types.UserState.AUTHENTICATED,
         userId: response.user.id,
+        organizationId: response.user.organizationId,
         authData: {
           accessToken: response.accessToken,
           accessTokenId: response.accessTokenId,
@@ -93,6 +97,10 @@ export class AuthService {
           'You can now access all features of the CopperX Payout system.\n\n' +
           'Use /help to see available commands or check the menu below.',
         { parse_mode: 'Markdown' },
+      );
+      await this.notificationService.initializeClient(
+        session.authData.accessToken!!,
+        session.organizationId!!,
       );
       return response.user;
     } catch (error) {
@@ -161,12 +169,16 @@ export class AuthService {
   }
 
   async logout(chatId: number): Promise<boolean> {
+    const session = await this.sessionService.getSession(chatId);
     try {
       await this.sessionService.updateSession(chatId, {
         state: Types.UserState.IDLE,
         kycVerified: false,
         authData: undefined,
       });
+      if (session.organizationId) {
+        this.notificationService.unsubscribe(session.organizationId);
+      }
       return true;
     } catch (error) {
       Configs.logger.error('Error logging out', { error, chatId });

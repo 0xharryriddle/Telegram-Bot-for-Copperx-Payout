@@ -26,6 +26,10 @@ export class SessionService {
         chatId,
         state: UserState.IDLE,
         lastCommandAt: Date.now(),
+        rateLimitData: {
+          requestCount: 0,
+          lastResetTime: Date.now(),
+        },
       };
       await databases.redis.set(this.getKey(chatId), JSON.stringify(session));
 
@@ -60,6 +64,18 @@ export class SessionService {
       );
 
       return this.initializeSession(chatId);
+    }
+  }
+
+  async getAllSessions(): Promise<UserSession[]> {
+    try {
+      const keys = await databases.redis.keys(`${this.keyPrefix}*`);
+      const sessions = await databases.redis.mget(keys);
+
+      return sessions.map((session) => JSON.parse(session!!));
+    } catch (error) {
+      Configs.logger.error('Failed to get all sessions', error);
+      return [];
     }
   }
 

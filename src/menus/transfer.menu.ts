@@ -9,10 +9,10 @@ export function transferMenu(bot: Telegraf) {
   // Main transfer menu
   bot.action('transfer_menu', async (ctx) => {
     await ctx.answerCbQuery();
-    await ctx.reply(
-      '🔄 *Transfer Menu*\n\nWhat would you like to do?',
-      getTransferMenu(),
-    );
+    await ctx.reply('🔄 *Transfer Menu*\n\nWhat would you like to do?', {
+      parse_mode: 'Markdown',
+      ...getTransferMenu(),
+    });
   });
 
   // Handle each transfer action

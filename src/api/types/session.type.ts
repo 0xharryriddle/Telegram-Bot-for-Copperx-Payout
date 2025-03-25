@@ -16,10 +16,15 @@ export enum UserState {
 export interface UserSession {
   chatId: number;
   state: UserState;
-  email?: string;
-  userId?: string;
-  kycVerified?: boolean;
+  email?: string | null;
+  userId?: string | null;
+  organizationId?: string | null;
+  kycVerified?: boolean | null;
   lastCommandAt: number;
+  rateLimitData?: {
+    requestCount: number;
+    lastResetTime: number;
+  } | null;
   transferData?: {
     method?: 'email' | 'wallet';
     email?: string;
@@ -27,11 +32,11 @@ export interface UserSession {
     amount?: string;
     currency?: Types.Currency;
     purposeCode?: Types.PurposeCode;
-  };
+  } | null;
   authData?: {
     sid?: string;
     accessToken?: string;
     accessTokenId?: string;
     expireAt?: string;
-  };
+  } | null;
 }
