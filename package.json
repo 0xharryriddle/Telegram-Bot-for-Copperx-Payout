@@ -44,7 +44,7 @@
     "dev": "DEBUG=bot* dotenv -- nodemon -e ts -x ts-node src/webhook.ts",
     "devWindows": "@powershell -Command $env:DEBUG='bot*';dotenv -- -- nodemon -e ts -x ts-node src/index.ts",
     "build": "tsc",
-    "start": "node public/index.js",
+    "start": "node public/webhook.js",
     "lint": "tsc --noemit",
     "prettier": "prettier --write 'src/**/*.ts'"
   }

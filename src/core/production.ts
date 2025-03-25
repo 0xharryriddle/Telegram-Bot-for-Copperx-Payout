@@ -7,7 +7,7 @@ import { Update } from 'telegraf/types';
 const debug = createDebug('bot:production');
 const app = express();
 const PORT = process.env.PORT || 3000;
-const SECRET_PATH = 'secret-path'; // Path for the webhook
+const SECRET_PATH = 'webhook'; // Path for the webhook
 const SERVER_URL = Configs.ENV.SERVER_URL;
 
 /**
