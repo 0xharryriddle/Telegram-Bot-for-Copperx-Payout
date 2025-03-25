@@ -35,15 +35,15 @@ export interface AuthUserDto {
   status: UserStatus;
   type: string;
   relayerAddress: string;
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  profileImage?: string;
-  organizationId?: string;
-  flags?: string[];
-  walletAddress?: string;
-  walletId?: string;
-  walletAccountType?: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  email?: string | null;
+  profileImage?: string | null;
+  organizationId?: string | null;
+  flags?: string[] | null;
+  walletAddress?: string | null;
+  walletId?: string | null;
+  walletAccountType?: string | null;
 }
 
 export interface AuthenticateResponseDto {

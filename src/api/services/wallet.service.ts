@@ -1,24 +1,24 @@
+import createDebug from 'debug';
 import * as Configs from '../../configs';
 import * as Types from '../types';
 import { AuthService } from './auth.service';
 import { CopperxPayoutService } from './copperxPayout.service';
-import { Context } from 'telegraf';
+
+const debug = createDebug('bot:wallet-service');
 
 export class WalletService {
   private static instance: WalletService;
   private authService: AuthService;
   private copperxPayoutService: CopperxPayoutService;
-  private context: Context;
 
-  private constructor(context: Context) {
-    this.context = context;
-    this.authService = AuthService.getInstance(context);
+  private constructor() {
+    this.authService = AuthService.getInstance();
     this.copperxPayoutService = new CopperxPayoutService();
   }
 
-  public static getInstance(context: Context): WalletService {
+  public static getInstance(): WalletService {
     if (!WalletService.instance) {
-      this.instance = new WalletService(context);
+      this.instance = new WalletService();
     }
     return this.instance;
   }
@@ -37,7 +37,7 @@ export class WalletService {
       const wallets = await this.copperxPayoutService.getWallets(accessToken);
       return wallets;
     } catch (error) {
-      Configs.logger.error('Failed to get wallets', { chatId, error });
+      debug('Failed to get wallets', { chatId, error });
 
       return [];
     }
@@ -190,7 +190,7 @@ export class WalletService {
   }
 
   // @note - 10 last transactions
-  async getTransactionHistory(
+  async getTransactionsHistory(
     chatId: number,
   ): Promise<Types.TransferWithTransactionsDto[]> {
     const accessToken = await this.authService.getAccessToken(chatId);
@@ -201,7 +201,8 @@ export class WalletService {
       this.setAccessToken(accessToken);
       const transactions =
         await this.copperxPayoutService.getTransactionsHistory(accessToken);
-      return transactions;
+
+      return transactions || [];
     } catch (error) {
       Configs.logger.error("Failed to get user's transaction history", {
         chatId,

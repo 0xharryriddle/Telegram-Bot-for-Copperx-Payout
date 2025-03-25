@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosInstance } from 'axios';
 import { ChannelAuthorizationCallback } from 'pusher-js';
-
+import createDebug from 'debug';
 import * as Configs from '../../configs';
 import { endpoints } from '../../utils/copperxPayoutEndpoint';
 import * as Types from '../types';
@@ -19,6 +19,8 @@ const DEFAULT_HEADERS = {
 };
 
 const BASE_URL = Configs.ENV.BASE_URL;
+
+const debug = createDebug('bot:copperx-payout-service');
 
 export class CopperxPayoutService {
   public readonly baseApi: AxiosInstance;
@@ -396,6 +398,8 @@ export class CopperxPayoutService {
         ...(startDate && { startDate: startDate.toISOString() }),
         ...(endDate && { endDate: endDate.toISOString() }),
       };
+
+      console.log(query);
 
       const response = await this.baseApi.get<{
         page: number;

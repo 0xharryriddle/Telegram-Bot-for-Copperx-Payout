@@ -1,25 +1,23 @@
 import createDebug from 'debug';
 import { Context } from 'telegraf';
 import { Markup } from 'telegraf';
+import { Update } from 'telegraf/types';
 
 const debug = createDebug('bot:help_command');
 
 export class HelpCommands {
   private static instance: HelpCommands;
-  private context: Context;
 
-  private constructor(context: Context) {
-    this.context = context;
-  }
+  private constructor() {}
 
-  static getInstance(context: Context) {
+  static getInstance() {
     if (!this.instance) {
-      this.instance = new HelpCommands(context);
+      this.instance = new HelpCommands();
     }
     return this.instance;
   }
 
-  async handleHelp() {
+  async handleHelp(context: Context<Update>) {
     const messageText = `🤖 *Copperx Payout Bot Help*
 
 *Authentication Commands*
@@ -45,6 +43,6 @@ Need more help? Visit our website at https://copperx.io or contact our support t
 
     debug('Help command triggered');
 
-    await this.context.sendMessage(messageText, { parse_mode: 'Markdown' });
+    await context.sendMessage(messageText, { parse_mode: 'Markdown' });
   }
 }

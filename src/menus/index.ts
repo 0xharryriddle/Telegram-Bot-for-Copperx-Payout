@@ -12,7 +12,10 @@ export function setupMenus(bot: Telegraf) {
   // Main menu
   bot.action('mainMenu', async (ctx) => {
     await ctx.answerCbQuery();
-    await ctx.reply('Main Menu', getMainMenu());
+    await ctx.reply(
+      '🌟 *Welcome to Copperx Payout Bot!* \n\nPlease select an option from the menu below to get started:',
+      getMainMenu(),
+    );
   });
 
   // Setup wallet menus

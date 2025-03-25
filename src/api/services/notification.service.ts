@@ -3,25 +3,24 @@ import Pusher from 'pusher-js';
 import * as Configs from '../../configs';
 import { CopperxPayoutService } from './copperxPayout.service';
 import { Context, Telegraf } from 'telegraf';
+import { Update } from 'telegraf/types';
 
 export class NotificationService {
   private static instance: NotificationService;
   private copperxPayoutService: CopperxPayoutService;
-  private context: Context;
   private pusherKey: string;
   private pusherCluster: string;
   private pusherClient?: Pusher;
 
-  private constructor(context: Context) {
+  private constructor() {
     this.copperxPayoutService = new CopperxPayoutService();
-    this.context = context;
     this.pusherKey = Configs.ENV.PUSHER_KEY;
     this.pusherCluster = Configs.ENV.PUSHER_CLUSTER;
   }
 
-  public static getInstance(context: Context): NotificationService {
+  public static getInstance(): NotificationService {
     if (!NotificationService.instance) {
-      NotificationService.instance = new NotificationService(context);
+      NotificationService.instance = new NotificationService();
     }
     return this.instance;
   }
@@ -52,7 +51,11 @@ export class NotificationService {
     return this.pusherClient;
   }
 
-  async subscribePrivateChannel(accessToken: string, organizationId: string) {
+  async subscribePrivateChannel(
+    accessToken: string,
+    organizationId: string,
+    context: Context<Update>,
+  ) {
     const pusherClient = await this.getClient(accessToken);
     const channel = pusherClient?.subscribe(`private-org-${organizationId}`);
 
@@ -75,7 +78,7 @@ export class NotificationService {
     // Bind to the deposit event
     pusherClient?.bind('deposit', (data: any) => {
       Configs.logger.info(`New Deposit Received`, data);
-      this.context.sendMessage?.(
+      context.sendMessage?.(
         `💰 *New Deposit Received*\n\n` + `${data.amount} deposited`,
       );
     });

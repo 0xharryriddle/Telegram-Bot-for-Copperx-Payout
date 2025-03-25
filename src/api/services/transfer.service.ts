@@ -8,17 +8,15 @@ export class TransferService {
   private static instance: TransferService;
   private authService: AuthService;
   private copperxPayoutService: CopperxPayoutService;
-  private context: Context;
 
-  private constructor(context: Context) {
-    this.context = context;
+  private constructor() {
     this.copperxPayoutService = new CopperxPayoutService();
-    this.authService = AuthService.getInstance(context);
+    this.authService = AuthService.getInstance();
   }
 
-  public static getInstance(context: Context): TransferService {
+  public static getInstance(): TransferService {
     if (!TransferService.instance) {
-      this.instance = new TransferService(context);
+      this.instance = new TransferService();
     }
     return this.instance;
   }

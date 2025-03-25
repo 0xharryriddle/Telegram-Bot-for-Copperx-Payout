@@ -1,10 +1,10 @@
+import { escapeMarkdownV2, upperFirstCase } from './../api/utils/conversion';
 import { Context } from 'telegraf';
 import { Message, Update } from 'telegraf/types';
 
 import { AuthService } from '../api/services/auth.service';
 import { validateOtp } from '../api/utils/validation';
 import { SessionService } from '../api/services/session.service';
-import * as Configs from '../configs';
 import * as Types from '../api/types';
 
 const debug = require('debug')('bot:auth-command');
@@ -14,14 +14,14 @@ export class AuthCommands {
   private authService: AuthService;
   private sessionService: SessionService;
 
-  private constructor(context: Context<Update>) {
-    this.authService = AuthService.getInstance(context);
+  private constructor() {
+    this.authService = AuthService.getInstance();
     this.sessionService = SessionService.getInstance();
   }
 
-  static getInstance(context: Context<Update>) {
+  static getInstance() {
     if (!this.instance) {
-      this.instance = new AuthCommands(context);
+      this.instance = new AuthCommands();
     }
     return this.instance;
   }
@@ -112,6 +112,63 @@ export class AuthCommands {
     }
   }
 
+  async handleUserProfile(context: Context<Update>) {
+    try {
+      const chatId = context.chat?.id;
+      if (!chatId) {
+        await context.reply(
+          '⚠️ *User Identification Failed* ⚠️\n\n' +
+            'We were unable to identify your user account.\n\n' +
+            '💡 *Tip*: Please ensure you are interacting with the bot from a valid chat session.',
+          { parse_mode: 'Markdown' },
+        );
+        return;
+      }
+      const userProfile = await this.authService.userProfile(chatId);
+      if (!userProfile) {
+        await context.reply(
+          '⚠️ *User Identification Failed* ⚠️\n\n' +
+            'We were unable to identify your user account.\n\n' +
+            '💡 *Tip*: Please ensure you are interacting with the bot from a valid chat session.',
+          { parse_mode: 'Markdown' },
+        );
+        return;
+      }
+
+      await context.sendMessage(
+        `🟢 *USER PROFILE* 🟢\n\n` +
+          `👤 *Personal Details*\n` +
+          `├─ *Name*: ${escapeMarkdownV2(userProfile.firstName!!) || 'N/A'} ${escapeMarkdownV2(userProfile.lastName!!) || 'N/A'}\n` +
+          `├─ *Email*: ${escapeMarkdownV2(userProfile.email!!) || 'N/A'}\n` +
+          `├─ *Role*: ${escapeMarkdownV2(upperFirstCase(userProfile.role))}\n` +
+          `└─ *Status*: ${escapeMarkdownV2(upperFirstCase(userProfile.status))}\n\n` +
+          `💰 *Wallet Information*\n` +
+          `├─ *Account Type*: ${escapeMarkdownV2(upperFirstCase(userProfile.walletAccountType!!)) || 'N/A'}\n` +
+          `├─ *Wallet Address*: ${escapeMarkdownV2(userProfile.walletAddress!!) || 'N/A'}\n` +
+          `└─ *Relayer Address*: ${escapeMarkdownV2(userProfile.relayerAddress) || 'N/A'}\n\n` +
+          `🔒 *Verification*\n` +
+          `└─ *KYC Status*: ${escapeMarkdownV2(upperFirstCase(userProfile.status))}\n\n` +
+          `🏢 *Organization*\n` +
+          `└─ *ID*: ${escapeMarkdownV2(userProfile.organizationId!!) || 'N/A'}\n\n` +
+          `🏷️ *Flags*: ${escapeMarkdownV2(upperFirstCase(userProfile.flags?.join(', ')!!)) || 'None'}\n\n` +
+          `🖼️ *Profile Image*: ${
+            userProfile.profileImage
+              ? `[View Image](${escapeMarkdownV2(userProfile.profileImage)})`
+              : 'N/A'
+          }`,
+        { parse_mode: 'MarkdownV2' },
+      );
+    } catch (error) {
+      debug('Failed to handle user profile.', error);
+      await context.reply(
+        '⚠️ *User Profile Error* ⚠️\n\n' +
+          'We encountered an issue while trying to fetch your user profile.\n\n' +
+          'Please try again or contact support if the problem persists.',
+        { parse_mode: 'Markdown' },
+      );
+    }
+  }
+
   /* ----------------------------- Passive Actions ---------------------------- */
 
   async handleInitializeLogin(context: Context<Update>) {
@@ -137,11 +194,10 @@ export class AuthCommands {
         );
         return;
       }
-      console.log(message.text);
       const input: Types.LoginEmailOtpRequestDto = {
         email: message.text,
       };
-      await this.authService.initializeLogin(chatId, input);
+      await this.authService.initializeLogin(chatId, input, context);
     } catch (error) {
       debug('Failed to initialize login.', error);
       await context.reply(
@@ -186,7 +242,11 @@ export class AuthCommands {
         { parse_mode: 'Markdown' },
       );
 
-      const userSession = await this.authService.verifyOtp(chatId, otp);
+      const userSession = await this.authService.verifyOtp(
+        chatId,
+        otp,
+        context,
+      );
 
       if (!userSession) {
         throw new Error('Invalid OTP');

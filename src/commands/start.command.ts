@@ -11,26 +11,24 @@ export class StartCommands {
   private static instance: StartCommands;
   private authService: AuthService;
   private sessionService: SessionService;
-  private context: Context;
 
-  private constructor(context: Context<Update>) {
-    this.context = context;
-    this.authService = AuthService.getInstance(context);
+  private constructor() {
+    this.authService = AuthService.getInstance();
     this.sessionService = SessionService.getInstance();
   }
 
-  static getInstance(context: Context<Update>) {
+  static getInstance() {
     if (!this.instance) {
-      this.instance = new StartCommands(context);
+      this.instance = new StartCommands();
     }
     return this.instance;
   }
 
-  async handleStart() {
+  async handleStart(context: Context<Update>) {
     try {
-      const chatId = this.context.chat?.id;
+      const chatId = context.chat?.id;
       if (!chatId) {
-        await this.context.reply('Could not identify user.');
+        await context.reply('Could not identify user.');
         return;
       }
 
@@ -54,7 +52,7 @@ To get started, please login to your Copperx Payout account.`;
 
         debug(`Triggered "start" command with message \n${messageText}`);
 
-        await this.context.reply(messageText, {
+        await context.reply(messageText, {
           parse_mode: 'Markdown',
           ...Markup.inlineKeyboard([
             [Markup.button.callback('🔐 Login', 'startLogin')],
@@ -63,7 +61,7 @@ To get started, please login to your Copperx Payout account.`;
         });
         return;
       } else {
-        await this.context.reply(
+        await context.reply(
           '🌟 *Welcome to Copperx Payout Bot!* \n\nPlease select an option from the menu below to get started:',
           {
             reply_markup: {

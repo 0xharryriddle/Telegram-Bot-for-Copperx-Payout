@@ -4,21 +4,20 @@ import * as Configs from '../../configs';
 import * as Types from '../../api/types';
 import { CopperxPayoutService } from './copperxPayout.service';
 import { SessionService } from './session.service';
+import { Update } from 'telegraf/types';
 
 export class AuthService {
   private static instance: AuthService;
   private copperxPayoutService: CopperxPayoutService;
   private sessionService = SessionService.getInstance();
-  private context: Context;
 
-  private constructor(context: Context) {
+  private constructor() {
     this.copperxPayoutService = new CopperxPayoutService();
-    this.context = context;
   }
 
-  public static getInstance(context: Context): AuthService {
+  public static getInstance(): AuthService {
     if (!AuthService.instance) {
-      AuthService.instance = new AuthService(context);
+      AuthService.instance = new AuthService();
     }
     return this.instance;
   }
@@ -26,6 +25,7 @@ export class AuthService {
   async initializeLogin(
     chatId: number,
     input: Types.LoginEmailOtpRequestDto,
+    context: Context<Update>,
   ): Promise<boolean> {
     try {
       const response = await this.copperxPayoutService.requestEmailOtp(input);
@@ -36,7 +36,7 @@ export class AuthService {
         authData: response,
       });
 
-      await this.context.sendMessage(
+      await context.sendMessage(
         '🔐 *Enter your OTP Code* 🔐\n\n' +
           'Please enter the 6-digit verification code sent to your email.\n\n' +
           '⏱️ This code will expire shortly, so please enter it promptly.',
@@ -61,6 +61,7 @@ export class AuthService {
   async verifyOtp(
     chatId: number,
     otp: string,
+    context: Context<Update>,
   ): Promise<Types.AuthUserDto | null> {
     const session = await this.sessionService.getSession(chatId);
     try {
@@ -86,7 +87,7 @@ export class AuthService {
           expireAt: response.expireAt,
         },
       });
-      await this.context.sendMessage(
+      await context.sendMessage(
         '🔒 *Authentication Successful* 🔒\n\n' +
           'Your identity has been verified and your session is now active.\n\n' +
           'You can now access all features of the CopperX Payout system.\n\n' +

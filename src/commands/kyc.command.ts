@@ -5,8 +5,8 @@ import { AuthService } from '../api/services/auth.service';
 export class KYCCommands {
   private authService: AuthService;
 
-  constructor(context: Context<Update>) {
-    this.authService = AuthService.getInstance(context);
+  constructor() {
+    this.authService = AuthService.getInstance();
   }
 
   async getKYCStatus(ctx: Context) {
