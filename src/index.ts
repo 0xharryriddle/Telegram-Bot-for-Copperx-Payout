@@ -1,13 +1,14 @@
-import { Telegraf } from 'telegraf';
+import { Context, Telegraf } from 'telegraf';
 // import './api/databases/redis';
 import { Request, Response } from 'express';
 import { databases, setUp } from './api/databases';
 import Routes from './routes';
 import * as Configs from './configs';
-import development from './core/development';
 import production from './core/production';
 import { setupMenus } from './menus';
 import createDebug from 'debug';
+import { NotificationService } from './api/services/notification.service';
+import { Update } from 'telegraf/types';
 
 const debug = createDebug('bot:index');
 
@@ -33,6 +34,10 @@ async function startBot() {
   try {
     await setUp();
     debug('Databases connected successfully!');
+
+    await NotificationService.getInstance().subscribeForAll(
+      bot.context as Context<Update>,
+    );
     if (Configs.ENV.NODE_ENV === 'production') {
       await production(bot);
       debug('Bot started in production mode');

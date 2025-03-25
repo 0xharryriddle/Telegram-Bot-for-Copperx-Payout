@@ -169,6 +169,73 @@ export class AuthCommands {
     }
   }
 
+  async handleKycStatus(context: Context<Update>) {
+    try {
+      const chatId = context.chat?.id;
+      if (!chatId) {
+        await context.reply(
+          '⚠️ *User Identification Failed* ⚠️\n\n' +
+            'We were unable to identify your user account.\n\n' +
+            '💡 *Tip*: Please ensure you are interacting with the bot from a valid chat session.',
+          { parse_mode: 'Markdown' },
+        );
+        return;
+      }
+      const kycStatus = await this.authService.checkKycStatus(chatId);
+
+      if (!kycStatus) {
+        await context.reply(
+          '⚠️ *KYC Status Error* ⚠️\n\n' +
+            'We encountered an issue while trying to fetch your KYC status.\n\n' +
+            'Please try again or contact support if the problem persists.',
+          { parse_mode: 'Markdown' },
+        );
+        return;
+      }
+
+      // Format and send KYC details
+      let detailMessage =
+        `🔍 *KYC STATUS DETAILS* 🔍\n\n` +
+        `${kycStatus.status || '❓ *Status Unknown* ❓'}\n\n` +
+        `📋 *Details*\n` +
+        `├─ *Type*: ${escapeMarkdownV2(upperFirstCase(kycStatus.type))}\n` +
+        `├─ *Country*: ${escapeMarkdownV2(kycStatus.country || 'N/A')}\n` +
+        `└─ *Provider*: ${escapeMarkdownV2(kycStatus.providerCode)}\n\n`;
+
+      // Add timestamps if available
+      if (kycStatus.createdAt || kycStatus.updatedAt) {
+        detailMessage += `⏱️ *Timestamps*\n`;
+        if (kycStatus.createdAt) {
+          detailMessage += `├─ *Created*: ${escapeMarkdownV2(new Date(kycStatus.createdAt).toLocaleString())}\n`;
+        }
+        if (kycStatus.updatedAt) {
+          detailMessage += `└─ *Updated*: ${escapeMarkdownV2(new Date(kycStatus.updatedAt).toLocaleString())}\n\n`;
+        }
+      }
+
+      // Add action buttons based on KYC status
+      const inlineKeyboard = [];
+      if (kycStatus.status !== Types.KycStatus.approved) {
+        inlineKeyboard.push([
+          { text: 'Complete KYC Verification', url: 'https://copperx.io' },
+        ]);
+      }
+      inlineKeyboard.push([
+        {
+          text: 'KYC Requirements Guide',
+          url: 'https://copperx.io/blog/how-to-complete-your-kyc-and-kyb-at-copperx-payout',
+        },
+      ]);
+
+      await context.reply(detailMessage, {
+        parse_mode: 'MarkdownV2',
+        reply_markup: {
+          inline_keyboard: inlineKeyboard,
+        },
+      });
+    } catch (error) {}
+  }
+
   /* ----------------------------- Passive Actions ---------------------------- */
 
   async handleInitializeLogin(context: Context<Update>) {

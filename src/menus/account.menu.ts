@@ -1,5 +1,6 @@
 import { Markup, Telegraf } from 'telegraf';
 import { getBackButton } from './index';
+import { AuthCommands, WalletCommands } from '../commands';
 
 /**
  * Setup account related menus
@@ -9,10 +10,10 @@ export function accountMenu(bot: Telegraf) {
   // Main account menu
   bot.action('account_menu', async (ctx) => {
     await ctx.answerCbQuery();
-    await ctx.reply(
-      '👤 *Account Menu*\n\nManage your account:',
-      getAccountMenu(),
-    );
+    await ctx.reply('👤 *Account Menu*\n\nManage your account:', {
+      parse_mode: 'Markdown',
+      ...getAccountMenu(),
+    });
   });
 
   // Handle each account action
@@ -36,8 +37,8 @@ export function accountMenu(bot: Telegraf) {
     await ctx.answerCbQuery();
     await ctx.reply('Checking your KYC status...');
     // Call command handler for KYC status
-    // const kycHandler = Commands.accessKyc();
-    // await kycHandler(ctx);
+    const kycHandler = AuthCommands.getInstance();
+    await kycHandler.handleKycStatus(ctx);
   });
 
   bot.action('account_logout', async (ctx) => {
