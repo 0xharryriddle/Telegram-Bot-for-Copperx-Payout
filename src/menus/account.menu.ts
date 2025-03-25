@@ -1,6 +1,5 @@
 import { Markup, Telegraf } from 'telegraf';
-import { getBackButton } from './index';
-import { AuthCommands, WalletCommands } from '../commands';
+import { AuthCommands, WalletCommands } from '../commands/index';
 
 /**
  * Setup account related menus

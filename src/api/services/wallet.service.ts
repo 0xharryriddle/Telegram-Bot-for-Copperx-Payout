@@ -1,6 +1,6 @@
 import createDebug from 'debug';
-import * as Configs from '../../configs';
-import * as Types from '../types';
+import * as Configs from '../../configs/index';
+import * as Types from '../types/index';
 import { AuthService } from './auth.service';
 import { CopperxPayoutService } from './copperxPayout.service';
 

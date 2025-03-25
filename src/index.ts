@@ -1,11 +1,11 @@
 import { Context, Telegraf } from 'telegraf';
 // import './api/databases/redis';
 import { Request, Response } from 'express';
-import { databases, setUp } from './api/databases';
-import Routes from './routes';
-import * as Configs from './configs';
+import { databases, setUp } from './api/databases/index';
+import Routes from './routes/index';
+import * as Configs from './configs/index';
 import production from './core/production';
-import { setupMenus } from './menus';
+import { setupMenus } from './menus/index';
 import createDebug from 'debug';
 import { NotificationService } from './api/services/notification.service';
 import { Update } from 'telegraf/types';

@@ -1,6 +1,6 @@
 import { Telegraf } from 'telegraf';
 import { message } from 'telegraf/filters';
-import * as Commands from '../commands';
+import * as Commands from '../commands/index';
 import createDebug from 'debug';
 
 const debug = createDebug('bot:routes');

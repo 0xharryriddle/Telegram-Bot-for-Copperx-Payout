@@ -1,7 +1,7 @@
 import { Context } from 'telegraf';
 
-import * as Configs from '../../configs';
-import * as Types from '../../api/types';
+import * as Configs from '../../configs/index';
+import * as Types from '../../api/types/index';
 import { CopperxPayoutService } from './copperxPayout.service';
 import { SessionService } from './session.service';
 import { Update } from 'telegraf/types';

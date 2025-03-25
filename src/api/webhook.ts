@@ -1,8 +1,8 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { Context, Telegraf } from 'telegraf';
-import botRoutes from '../routes';
+import botRoutes from '../routes/index';
 import { Update } from 'telegraf/typings/core/types/typegram';
-import * as Configs from '../configs';
+import * as Configs from '../configs/index';
 
 const BOT_TOKEN = Configs.ENV.BOT_TOKEN;
 const SERVER_URL = Configs.ENV.SERVER_URL;

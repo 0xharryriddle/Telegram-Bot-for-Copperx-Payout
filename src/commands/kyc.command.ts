@@ -1,5 +1,4 @@
 import { Context } from 'telegraf';
-import { Update } from 'telegraf/types';
 import { AuthService } from '../api/services/auth.service';
 
 export class KYCCommands {

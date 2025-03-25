@@ -1,7 +1,7 @@
 import Redis, { RedisOptions } from 'ioredis';
 import createDebug from 'debug';
 
-import * as Configs from '../../configs';
+import * as Configs from '../../configs/index';
 
 const debug = createDebug('database:redis');
 

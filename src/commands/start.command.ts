@@ -3,7 +3,7 @@ import { SessionService } from '../api/services/session.service';
 import { Context, Markup } from 'telegraf';
 import { Update } from 'telegraf/types';
 import createDebug from 'debug';
-import { getMainMenu } from '../menus';
+import { getMainMenu } from '../menus/index';
 
 const debug = createDebug('bot:start_command');
 

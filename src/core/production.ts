@@ -1,7 +1,7 @@
-import { Context, Telegraf,  } from 'telegraf';
+import { Context, Telegraf } from 'telegraf';
 import createDebug from 'debug';
 import express from 'express';
-import * as Configs from '../configs';
+import * as Configs from '../configs/index';
 import { Update } from 'telegraf/types';
 
 const debug = createDebug('bot:production');

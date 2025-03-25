@@ -1,6 +1,6 @@
 import { Markup, Telegraf } from 'telegraf';
 import { getBackButton, getMainMenu } from './index';
-import { WalletCommands } from '../commands';
+import { WalletCommands } from '../commands/index';
 
 /**
  * Setup wallet related menus
