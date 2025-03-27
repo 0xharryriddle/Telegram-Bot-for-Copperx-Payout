@@ -173,6 +173,16 @@ const index = (bot: Telegraf) => {
       if (replyText && replyText.includes('Set Default Wallet')) {
         await Commands.WalletCommands.getInstance().handleSetDefaultWallet(ctx);
       }
+
+      if (
+        replyText &&
+        replyText.includes('Create New Transfer') &&
+        replyText.includes('Enter Email Address')
+      ) {
+        await Commands.TransferCommands.getInstance().handlePreEmailTransfer(
+          ctx,
+        );
+      }
     }
   });
 };

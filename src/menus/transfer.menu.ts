@@ -1,3 +1,4 @@
+import { TransferCommands } from '../commands/index';
 import { Markup, Telegraf } from 'telegraf';
 
 /**
@@ -42,29 +43,26 @@ export function transferMenu(bot: Telegraf) {
   // Handle sending options
   bot.action('send_email', async (ctx) => {
     await ctx.answerCbQuery();
-    // const handler = TransferCommands.handleSendEmail();
-    // await handler(ctx);
+    const handler = TransferCommands.getInstance();
+    await handler.handleInitiateEmailTransfer(ctx);
   });
 
   bot.action('send_wallet', async (ctx) => {
     await ctx.answerCbQuery();
-    // const handler = TransferCommands.handleSendWallet();
-    // await handler(ctx);
+    const handler = TransferCommands.getInstance();
+    await handler.handleInitiateWalletTransfer(ctx);
   });
 
   // Handle cancel
   bot.action('send_cancel', async (ctx) => {
     await ctx.answerCbQuery();
-    // const handler = TransferCommands.handleSendCancel();
-    // await handler(ctx);
   });
 
   // Handle confirmation
   bot.action('send_confirm', async (ctx) => {
     await ctx.answerCbQuery();
-    await ctx.reply('Processing your transfer...');
-    // const handler = TransferCommands.handleSendConfirm();
-    // await handler(ctx);
+    const handler = TransferCommands.getInstance();
+    await handler.handleTransferDetails(ctx);
   });
 
   // Withdraw actions
