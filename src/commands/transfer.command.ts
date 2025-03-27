@@ -1,10 +1,16 @@
 import * as Configs from '../configs/index';
+import * as Types from '../api/types/index';
 import { TransferService } from '../api/services/transfer.service';
 import { SessionService } from '../api/services/session.service';
 import { Context } from 'telegraf';
-import { Update } from 'telegraf/types';
-import { getSendOptions, getTransferMenu } from '../menus/transfer.menu';
+import { Message, Update } from 'telegraf/types';
+import {
+  getSendOptions,
+  getTransferConfirmMenu,
+  getTransferMenu,
+} from '../menus/transfer.menu';
 import { WalletService } from '../api/services/wallet.service';
+import { validateEmail } from '../api/utils/validation';
 
 export class TransferCommands {
   private static instance: TransferCommands;
@@ -45,22 +51,48 @@ export class TransferCommands {
 
   /* ----------------------------- Active Actions ----------------------------- */
 
-  async handleInitiateTransfer(context: Context<Update>): Promise<void> {
+  async handleInitiateWalletTransfer(context: Context<Update>): Promise<void> {
     try {
-      const chatId = context.chat?.id;
-
       await context.reply(
         '💸 *Create New Transfer* 💸\n\n' +
           'Please provide the following details for your transfer:\n\n' +
-          '1️⃣ *Recipient* - Enter ONE of these options:\n' +
-          '   • Wallet Address\n' +
-          '   • Email Address\n' +
-          '   • Payee ID\n\n' +
+          '1️⃣ *Recipient* - Enter Wallet Address:\n' +
           '2️⃣ *Amount* - Enter the amount to send\n\n' +
           '3️⃣ *Currency* - Choose the currency (e.g., BTC, ETH, USDT)\n\n' +
           '4️⃣ *Purpose* - Reason for the transfer\n\n' +
           'Example format:\n' +
-          '`email@example.com 0.001 BTC payment`\n\n' +
+          '`0x37f333f49425d2eb853811b23465e65948dbbb70acec4f101ba1a41558d36f9 0.001 BTC payment`\n\n' +
+          'Reply to this message with your transfer details.',
+        {
+          parse_mode: 'Markdown',
+          reply_markup: {
+            force_reply: true,
+          },
+        },
+      );
+    } catch (error) {
+      Configs.logger.error('Failed to initiate transfer', {
+        chatId: context?.from?.id,
+        error,
+      });
+    }
+  }
+
+  async handleInitiateEmailTransfer(context: Context<Update>): Promise<void> {
+    try {
+      await context.reply(
+        '💸 *Create New Transfer* 💸\n\n' +
+          'Please provide the following details for your transfer:\n\n' +
+          '1️⃣ *Recipient* - Enter Email Address:\n\n' +
+          '2️⃣ *Amount* - Enter the amount to send\n\n' +
+          '3️⃣ *Currency* - Choose from:\n' +
+          '   • Fiat: USD, EUR, GBP, AED, SGD, CAD, AUD, etc.\n' +
+          '   • Crypto: USDC, USDT, ETH, DAI, STRK\n\n' +
+          '4️⃣ *PurposeCode* - Choose from:\n' +
+          '   `self`, `salary`, `gift`, `income`, `saving`, `education_support`,\n' +
+          '   `family`, `home_improvement`, `reimbursement`\n\n' +
+          'Example format:\n' +
+          '`email@example.com 0.001 USDT gift`\n\n' +
           'Reply to this message with your transfer details.',
         {
           parse_mode: 'Markdown',
@@ -83,190 +115,260 @@ export class TransferCommands {
 
   async handleTransferDetails(context: Context<Update>): Promise<void> {
     try {
-      const message = context.message;
       const chatId = context.chat?.id;
-      
-      // Check if we have a message and chat ID
-      if (!message || !chatId) {
-        Configs.logger.error('Missing message or chat ID', { context });
-        return;
-      }
-      
-      // Ensure we have a text message
-      if (!('text' in message)) {
-        await context.reply('Please provide text with the transfer details.');
-        return;
-      }
-      
-      const text = message.text.trim();
-      const parts = text.split(' ');
-      
-      // Validate format - need at least recipient, amount, and currency
-      if (parts.length < 3) {
+
+      if (!chatId) {
         await context.reply(
-          "⚠️ *Incomplete Transfer Details* ⚠️\n\n" +
-          "Please provide all required information in the format:\n" +
-          "`recipient amount currency [purpose]`\n\n" +
-          "Example: `email@example.com 0.001 BTC payment`",
-          { parse_mode: "Markdown" }
+          '⚠️ *User Identification Failed* ⚠️\n\n' +
+            'We were unable to identify your user account.\n\n' +
+            '💡 *Tip*: Please ensure you are interacting with the bot from a valid chat session.',
+          { parse_mode: 'Markdown' },
         );
         return;
       }
-      
-      // Extract details - first part is recipient, second is amount, third is currency
-      // All remaining parts combined form the purpose
-      const recipient = parts[0];
-      const amount = parts[1];
-      const currency = parts[2];
-      const purpose = parts.slice(3).join(' ') || 'Transfer';
-      
-      // Validate recipient format
-      let recipientType = '';
-      let recipientValue = '';
-      
-      // Check if it's an email
-      if (recipient.includes('@')) {
-        recipientType = 'email';
-        recipientValue = recipient;
-      } 
-      // Check if it's a wallet address (simplified validation)
-      else if (recipient.length > 30) {
-        recipientType = 'walletAddress';
-        recipientValue = recipient;
-      } 
-      // Assume it's a payeeId otherwise
-      else {
-        recipientType = 'payeeId';
-        recipientValue = recipient;
-      }
-      
-      // Validate amount is a number
-      if (isNaN(parseFloat(amount))) {
-        await context.reply(
-          "⚠️ *Invalid Amount* ⚠️\n\n" +
-          "Please provide a valid number for the amount.",
-          { parse_mode: "Markdown" }
-        );
-        return;
-      }
-      
-      // Prepare transfer data
-      const transferData: any = {
-        amount,
-        currency,
-        purposeCode: purpose,
-      };
-      
-      // Add recipient based on type
-      transferData[recipientType] = recipientValue;
-      
-      // Check if user has sufficient balance before proceeding
-      try {
-        // Show processing message
-        const processingMsg = await context.reply(
-          "⏳ *Checking your balance...*",
-          { parse_mode: "Markdown" }
-        );
-        
-        // Get user's wallet balances
-        const wallets = await this.walletService.getWalletsBalances(chatId);
-        
-        // Delete the processing message
-        await context.telegram.deleteMessage(chatId, processingMsg.message_id);
-        
-        // Check if we have any wallets
-        if (!wallets || wallets.length === 0) {
-          await context.reply(
-            "❌ *No Wallets Found* ❌\n\n" +
+
+      const processingMsg = await context.reply('Loading transfer details...', {
+        parse_mode: 'Markdown',
+      });
+
+      const userSession = await this.sessionService.getSession(chatId);
+
+      const transferData = userSession.transferData;
+      // Show processing message
+
+      await context.telegram.editMessageText(
+        chatId,
+        processingMsg.message_id,
+        '',
+        '⏳ *Checking your balance...*',
+        { parse_mode: 'Markdown' },
+      );
+
+      // Get user's wallet balances
+      const defaultWallet = await this.walletService.getDefaultWallet(chatId);
+
+      console.log('Default Wallet: ', defaultWallet);
+
+      // Check if we have any wallets
+      if (!defaultWallet) {
+        await context.telegram.editMessageText(
+          chatId,
+          processingMsg.message_id,
+          '',
+          '❌ *No Wallets Found* ❌\n\n' +
             "You don't have any wallets. Please create one first.",
-            { parse_mode: "Markdown" }
-          );
-          return;
-        }
-        
-        // Log wallet information for debugging
-        Configs.logger.info('Checking wallets for currency:', { currency, wallets });
-        
-        // Simple balance check - this should be adjusted based on your actual API response structure
-        let hasEnoughBalance = false;
-        let currentBalance = 0;
-        
-        // Since we're not sure of the exact structure, use a simple approach with error handling
-        try {
-          // This is where you'd implement your actual balance checking logic
-          // based on the structure of your walletService response
-          
-          // Dummy implementation - replace with actual logic
-          // For example, you might need to:
-          // 1. Find the wallet with the right currency
-          // 2. Extract the balance for that currency
-          // 3. Compare with the requested amount
-          
-          // For now, assume we have enough balance
-          hasEnoughBalance = true;
-          currentBalance = parseFloat(amount) * 2; // Just for demonstration
-          
-          Configs.logger.info('Balance check', { hasEnoughBalance, currentBalance, amount });
-        } catch (error) {
-          Configs.logger.error('Error checking balance', { error });
-          await context.reply(
-            "⚠️ *Error Checking Balance* ⚠️\n\n" +
-            "We couldn't verify your current balance. Please try again later or contact support.",
-            { parse_mode: "Markdown" }
-          );
-          return;
-        }
-        
-        // Check if balance is sufficient
-        const transferAmount = parseFloat(amount);
-        if (!hasEnoughBalance || currentBalance < transferAmount) {
-          await context.reply(
-            "❌ *Insufficient Balance* ❌\n\n" +
-            `You are trying to send *${amount} ${currency}* but your current balance is *${currentBalance} ${currency}*.\n\n` +
-            "Please deposit funds or enter a smaller amount.",
-            { parse_mode: "Markdown" }
-          );
-          return;
-        }
-        
-        // Show confirmation message if balance is sufficient
-        await context.reply(
-          "✅ *Transfer Details Confirmed* ✅\n\n" +
-          `*Recipient:* ${recipient}\n` +
-          `*Amount:* ${amount} ${currency}\n` +
-          `*Purpose:* ${purpose}\n\n` +
-          `*Available Balance:* ${currentBalance} ${currency}\n\n` +
-          "Please confirm to proceed with this transfer:",
-          {
-            parse_mode: "Markdown",
-            reply_markup: {
-              inline_keyboard: [
-                [
-                  { text: "✅ Confirm Transfer", callback_data: "confirm_transfer" },
-                  { text: "❌ Cancel", callback_data: "cancel_transfer" }
-                ]
-              ]
-            }
-          }
-        );
-        
-      } catch (balanceError) {
-        Configs.logger.error('Failed to check wallet balance', { chatId, currency, error: balanceError });
-        await context.reply(
-          "⚠️ *Error Checking Balance* ⚠️\n\n" +
-          "We couldn't verify your current balance. Please try again later or contact support.",
-          { parse_mode: "Markdown" }
+          { parse_mode: 'Markdown' },
         );
         return;
       }
-      
-      // Store transfer data for later retrieval
-      this.storeTransferDataForUser(chatId, transferData);
-      
+
+      const transfer = await this.transferService.sendPayment(chatId, {
+        amount: transferData?.amount!!,
+        currency: transferData?.currency!!,
+        purposeCode: transferData?.purposeCode!!,
+        email: transferData?.email!!,
+        walletAddress: transferData?.walletAddress!!,
+        payeeId: defaultWallet.id,
+      });
+
+      if (!transfer) {
+        await context.telegram.editMessageText(
+          chatId,
+          processingMsg.message_id,
+          '',
+          '❌ *Transfer Failed* ❌\n\n' +
+            'We were unable to process your transfer. Please try again later.',
+          { parse_mode: 'Markdown' },
+        );
+        return;
+      }
+
+      await context.telegram.editMessageText(
+        chatId,
+        processingMsg.message_id,
+        '',
+        '✅ *Transfer Details Confirmed* ✅\n\n' +
+          `*Recipient:* ${transfer.destinationAccount?.id || 'Unknown'}\n` +
+          `*Amount:* ${transfer.amount} ${transfer.currency}\n` +
+          `*Status:* ${transfer.status}\n` +
+          `*Type:* ${transfer.type || 'Standard'}\n` +
+          `*From:* ${transfer.sourceCountry} → *To:* ${transfer.destinationCountry}\n` +
+          (transfer.totalFee
+            ? `*Fee:* ${transfer.totalFee} ${transfer.feeCurrency || transfer.currency}\n`
+            : '') +
+          (transfer.note ? `*Note:* ${transfer.note}\n` : '') +
+          (transfer.senderDisplayName
+            ? `*Sender:* ${transfer.senderDisplayName}\n`
+            : '') +
+          `*Purpose:* ${transfer.purposeCode || 'Not specified'}\n\n`,
+        {
+          parse_mode: 'Markdown',
+          reply_markup: {
+            inline_keyboard: [
+              [
+                {
+                  text: '✅ Confirm Transfer',
+                  callback_data: 'confirm_transfer',
+                },
+                { text: '❌ Cancel', callback_data: 'cancel_transfer' },
+              ],
+            ],
+          },
+        },
+      );
     } catch (error) {
-      Configs.logger.error('Failed to process transfer details', { chatId: context.chat?.id, error });
-      await context.reply('An error occurred while processing your transfer details. Please try again.');
+      console.error(error);
+      Configs.logger.error('Failed to process transfer details', {
+        chatId: context.chat?.id,
+        error,
+      });
+      await context.reply(
+        'An error occurred while processing your transfer details. Please try again.',
+      );
     }
+  }
+
+  async handlePreEmailTransfer(context: Context<Update>): Promise<void> {
+    const chatId = context.chat?.id;
+    try {
+      if (!chatId) {
+        await context.reply(
+          '⚠️ *User Identification Failed* ⚠️\n\n' +
+            'We were unable to identify your user account.\n\n' +
+            '💡 *Tip*: Please ensure you are interacting with the bot from a valid chat session.',
+          { parse_mode: 'Markdown' },
+        );
+        return;
+      }
+
+      const userSession = await this.sessionService.getSession(chatId);
+
+      const message = context.message as Message.TextMessage;
+      const components = message.text.split(' ');
+      if (components.length < 3) {
+        await context.reply('', { parse_mode: 'Markdown' });
+        return;
+      }
+      if (!validateEmail(components[0])) {
+        await context.reply(
+          '⚠️ *Invalid Email Address* ⚠️\n\n' +
+            'Please provide a valid email address to proceed.',
+          { parse_mode: 'Markdown' },
+        );
+        return;
+      }
+      if (components[1] === undefined || isNaN(parseFloat(components[1]))) {
+        await context.reply(
+          '⚠️ *Invalid Amount* ⚠️\n\n' +
+            'Please provide a valid amount to proceed.',
+          { parse_mode: 'Markdown' },
+        );
+        return;
+      }
+
+      // Check if the provided currency is valid
+      const upperCaseCurrency = components[2].toUpperCase();
+      if (
+        !Object.values(Types.Currency).includes(
+          upperCaseCurrency as Types.Currency,
+        )
+      ) {
+        await context.reply(
+          '⚠️ *Invalid Currency* ⚠️\n\n' +
+            'Please provide a valid currency code from the supported list.\n\n' +
+            'Examples: USD, EUR, GBP, USDT, ETH, etc.',
+          { parse_mode: 'Markdown' },
+        );
+        return;
+      }
+
+      // Check if purpose code is provided and valid
+      if (!components[3]) {
+        await context.reply(
+          '⚠️ *Missing Purpose Code* ⚠️\n\n' +
+            'Please provide a valid purpose code from the supported list.\n\n' +
+            'Examples: self, salary, gift, income, etc.',
+          { parse_mode: 'Markdown' },
+        );
+        return;
+      }
+
+      // Check if the provided purpose code is valid
+      const purposeCode = components[3].toLowerCase();
+      if (
+        !Object.values(Types.PurposeCode).includes(
+          purposeCode as Types.PurposeCode,
+        )
+      ) {
+        await context.reply(
+          '⚠️ *Invalid Purpose Code* ⚠️\n\n' +
+            'Please provide a valid purpose code from the supported list.\n\n' +
+            'Valid codes: self, salary, gift, income, saving, education_support, family, home_improvement, reimbursement',
+          { parse_mode: 'Markdown' },
+        );
+        return;
+      }
+
+      await this.sessionService.updateSession(chatId, {
+        ...userSession,
+        state: Types.UserState.AWAITING_CONFIRMATION,
+        transferData: {
+          method: 'email',
+          email: components[0],
+          amount: components[1],
+          currency: upperCaseCurrency as Types.Currency,
+          purposeCode: purposeCode as Types.PurposeCode,
+        },
+      });
+
+      // Create a confirmation message with details and emojis
+      await context.reply(
+        '🌟 *Email Transfer Confirmation* 🌟\n\n' +
+          '📧 *Recipient:* ' +
+          components[0] +
+          '\n' +
+          '💰 *Amount:* ' +
+          components[1] +
+          ' ' +
+          upperCaseCurrency +
+          '\n' +
+          '🏷️ *Purpose:* ' +
+          purposeCode +
+          '\n\n' +
+          '✅ Please confirm this transfer by selecting an option below:',
+        {
+          parse_mode: 'Markdown',
+          ...getTransferConfirmMenu(),
+        },
+      );
+    } catch (error) {
+      Configs.logger.error('Failed to process email transfer request', {
+        chatId,
+        error,
+      });
+      await context.reply(
+        '❌ *Error Processing Transfer Request* ❌\n\n' +
+          '⚠️ Something went wrong while processing your email transfer.\n\n' +
+          '📋 *Possible issues:*\n' +
+          '• Invalid email format\n' +
+          '• Incorrect currency code\n' +
+          '• Server connection problems\n\n' +
+          '🔄 Please try again or contact support if the issue persists.',
+        {
+          parse_mode: 'Markdown',
+        },
+      );
+    }
+  }
+
+  async handleEmailTransfer(context: Context<Update>): Promise<void> {
+    try {
+      const chatId = context.chat?.id;
+      console.log(context.message);
+      await context.reply('Loading email transfer details...', {
+        parse_mode: 'Markdown',
+      });
+    } catch (error) {}
   }
 
   /**
